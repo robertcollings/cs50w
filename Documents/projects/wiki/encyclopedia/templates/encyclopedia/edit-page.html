@@ -1,0 +1,19 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Edit page
+{% endblock %}
+
+{% block body %}
+    <h1>Edit page</h1>
+
+    <form action="{% url 'encyclopedia:edit-page' title %}" method="POST">
+        {% csrf_token %}
+        <input type="text" class="form-control" name="title" placeholder="Name of page" value="{{ title }}">
+        </br>
+        <textarea class="form-control" rows="20" cols="20" name="content">{{ content|safe }}</textarea>
+        <br />
+        <button type="submit" class="btn btn-primary mb-2">Save entry</button>
+        <button type="submit" class="btn btn-primary mb-2" formaction="{% url 'encyclopedia:delete' title %}">Delete entry</button>
+    </form>
+{% endblock %}
