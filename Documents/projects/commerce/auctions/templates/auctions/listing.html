@@ -1,0 +1,142 @@
+{% extends "auctions/layout.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block body %}
+      
+    <div class="container">
+        {% if listing.ended %}
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-info" role="alert">This listing was ended on {{ listing.created_date|date:'d-M-Y' }} at {{ listing.created_date|date:'H:i' }}. The winning bid was £{{ listing.latest_bid }}</div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col">
+                <img src="{{ listing.image }}" class="img-thumbnail">
+            </div>
+            <div class="col">
+                <h1>{{ listing.title }}</h1>  
+                <hr/>
+                <div class="row">
+                    <div class="col">
+                        <h2>Place a bid:</h2>
+                    </div>
+                    <div class="col">
+                        <form action="{% url 'view-listing' listing.id %}" method="post">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col">
+                                        {% csrf_token %}
+                                        {{ form|crispy }}
+                                    </div>
+                                    <div class="col">
+                                        <button type="submit" class="btn btn-primary" name="new-bid" {% if listing.ended %}disabled{% endif %}>Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {% if message == True %}
+                        <div class="alert alert-success" role="alert">✅ Bid placed!</div>
+                        {% elif message == False %}
+                        <div class="alert alert-warning" role="alert">⚠️ Bid too low!</div>
+                        {% else %}
+                        
+                        {% endif %}
+
+                    </div>
+                    <div class="col">
+                        <p class="text-right"><i>Please bid more than £{{ listing.latest_bid }} </i></p>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col">
+                        <div id="listing-details">
+                            <p><b>Auction information</b></p>
+                            <p>Listing ID: {{ listing.id }}</p>
+                            <p>Listing owner: {{ listing.owner }}</p>
+                            <p>Date listed: {{ listing.created_date|date:'d-M-Y H:i' }}</p>
+                        </div>
+                    </div>
+                    {% if user == listing.owner %}
+                    <div class="col">
+                        <form action="{% url 'end' listing.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-info" {% if listing.ended %}disabled{% endif %}>End this listing</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h2>Item Description</h2>
+                {{ listing.description }}
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h2>Bid history</h2>
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Time</th>
+                        <th scope="col">Bid amount</th>
+                        <th scope="col">User</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for bid in bids %}
+                            <tr>
+                                <td>{{ bid.time }}</td>
+                                <td>£{{ bid.amount }}</td>
+                                <td>{{ bid.user }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+            </div>
+       
+            <div class="col">
+                <h2>Comments</h2>
+                    <table class="table">
+                    {% if comments %}
+                    {% for comment in comments %}
+                    <tr>    
+                        <td>{{ comment.comment }}</td>
+                    </tr>
+                    <tr>
+                        <td class="sub-row">by <i>{{ comment.user }}</i> on <i>{{ comment.time }}</i></td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr><td>No comments</td></tr>
+                    {% endif %}
+                </table>
+                <div class="col">
+                {% if user.is_authenticated %}
+                <form action="{% url 'view-listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {{ commentsform|crispy }}
+                    <button type="submit" class="btn btn-primary" name="new-comment">Submit</button>
+                </form>
+                {% else %}
+                <p>Please login to add a comment</p>
+                {% endif %}
+                </div>
+                <hr />
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

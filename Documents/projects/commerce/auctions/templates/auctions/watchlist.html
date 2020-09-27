@@ -1,0 +1,38 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2>Watchlist</h2>
+
+    <div class="row"> 
+        {% if watching %}
+
+            {% for item in watching %}
+            <div class="card m-1" style="width: 18rem;">
+                <img src="{{ item.watching.image }}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.watching.title }}</h5>
+                    <p class="card-text truncate">{{ item.watching.description }}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Current bid: £{{ item.watching.latest_bid.amount }}</li>
+                </ul>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Category: {{ item.watching.category }}</li>
+                </ul>
+                <div class="card-body">
+                    <a href="{% url 'view-listing' item.watching.id %}" class="btn btn-primary">View listing</a>
+                    <a href="{% url 'unwatch' item.watching.id %}" class="card-link">Stop watching</a>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% else %}
+            <div class="col">
+                <p>You're not watching anything!</p>
+            </div>
+            {% endif %}
+    </div> 
+
+
+{% endblock %}
